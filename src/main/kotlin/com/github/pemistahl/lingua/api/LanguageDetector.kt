@@ -16,49 +16,9 @@
 
 package com.github.pemistahl.lingua.api
 
-import com.github.pemistahl.lingua.api.Language.AFRIKAANS
-import com.github.pemistahl.lingua.api.Language.ALBANIAN
-import com.github.pemistahl.lingua.api.Language.AZERBAIJANI
-import com.github.pemistahl.lingua.api.Language.BASQUE
-import com.github.pemistahl.lingua.api.Language.BELARUSIAN
-import com.github.pemistahl.lingua.api.Language.BOKMAL
-import com.github.pemistahl.lingua.api.Language.BOSNIAN
-import com.github.pemistahl.lingua.api.Language.BULGARIAN
-import com.github.pemistahl.lingua.api.Language.CATALAN
-import com.github.pemistahl.lingua.api.Language.CHINESE
-import com.github.pemistahl.lingua.api.Language.CROATIAN
-import com.github.pemistahl.lingua.api.Language.CZECH
-import com.github.pemistahl.lingua.api.Language.DANISH
-import com.github.pemistahl.lingua.api.Language.DUTCH
-import com.github.pemistahl.lingua.api.Language.ESTONIAN
-import com.github.pemistahl.lingua.api.Language.FINNISH
 import com.github.pemistahl.lingua.api.Language.FRENCH
-import com.github.pemistahl.lingua.api.Language.GERMAN
-import com.github.pemistahl.lingua.api.Language.HUNGARIAN
-import com.github.pemistahl.lingua.api.Language.ICELANDIC
-import com.github.pemistahl.lingua.api.Language.IRISH
-import com.github.pemistahl.lingua.api.Language.ITALIAN
-import com.github.pemistahl.lingua.api.Language.JAPANESE
-import com.github.pemistahl.lingua.api.Language.KAZAKH
-import com.github.pemistahl.lingua.api.Language.LATVIAN
-import com.github.pemistahl.lingua.api.Language.LITHUANIAN
-import com.github.pemistahl.lingua.api.Language.MACEDONIAN
-import com.github.pemistahl.lingua.api.Language.MONGOLIAN
-import com.github.pemistahl.lingua.api.Language.NYNORSK
-import com.github.pemistahl.lingua.api.Language.POLISH
-import com.github.pemistahl.lingua.api.Language.PORTUGUESE
-import com.github.pemistahl.lingua.api.Language.ROMANIAN
-import com.github.pemistahl.lingua.api.Language.RUSSIAN
-import com.github.pemistahl.lingua.api.Language.SERBIAN
-import com.github.pemistahl.lingua.api.Language.SLOVAK
-import com.github.pemistahl.lingua.api.Language.SLOVENE
 import com.github.pemistahl.lingua.api.Language.SPANISH
-import com.github.pemistahl.lingua.api.Language.SWEDISH
-import com.github.pemistahl.lingua.api.Language.TURKISH
-import com.github.pemistahl.lingua.api.Language.UKRAINIAN
 import com.github.pemistahl.lingua.api.Language.UNKNOWN
-import com.github.pemistahl.lingua.api.Language.VIETNAMESE
-import com.github.pemistahl.lingua.api.Language.YORUBA
 import com.github.pemistahl.lingua.internal.Alphabet
 import com.github.pemistahl.lingua.internal.Constant.MULTIPLE_WHITESPACE
 import com.github.pemistahl.lingua.internal.Constant.NUMBERS
@@ -241,10 +201,7 @@ class LanguageDetector internal constructor(
                 }
                 if (!isMatch) {
                     when {
-                        Alphabet.HAN.matches(character) -> wordLanguageCounts.incrementCounter(CHINESE)
-                        JAPANESE_CHARACTER_SET.matches(character) -> wordLanguageCounts.incrementCounter(JAPANESE)
                         Alphabet.LATIN.matches(character) ||
-                            Alphabet.CYRILLIC.matches(character) ||
                             Alphabet.DEVANAGARI.matches(character) ->
                             languagesWithUniqueCharacters.filter {
                                 it.uniqueCharacters?.contains(character) ?: false
@@ -264,8 +221,6 @@ class LanguageDetector internal constructor(
                 } else {
                     totalLanguageCounts.incrementCounter(UNKNOWN)
                 }
-            } else if (wordLanguageCounts.containsKey(CHINESE) && wordLanguageCounts.containsKey(JAPANESE)) {
-                totalLanguageCounts.incrementCounter(JAPANESE)
             } else {
                 val sortedWordLanguageCounts = wordLanguageCounts.toList().sortedByDescending { it.second }
                 val (mostFrequentLanguage, firstCharCount) = sortedWordLanguageCounts[0]
@@ -421,71 +376,29 @@ class LanguageDetector internal constructor(
 
     internal companion object {
         private val NO_LETTER = Regex("^[^\\p{L}]+$")
-        private val JAPANESE_CHARACTER_SET = try {
-            Regex("^[\\p{Hiragana}\\p{Katakana}\\p{Han}]+$")
-        } catch (e: PatternSyntaxException) {
-            Regex("^[\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}]+$")
-        }
 
         private val CHARS_TO_LANGUAGES_MAPPING = hashMapOf(
 
-            "Ãã" to setOf(PORTUGUESE, VIETNAMESE),
-            "ĄąĘę" to setOf(LITHUANIAN, POLISH),
-            "Żż" to setOf(POLISH, ROMANIAN),
-            "Îî" to setOf(FRENCH, ROMANIAN),
-            "Ññ" to setOf(BASQUE, SPANISH),
-            "ŇňŤť" to setOf(CZECH, SLOVAK),
-            "Ăă" to setOf(ROMANIAN, VIETNAMESE),
-            "İıĞğ" to setOf(AZERBAIJANI, TURKISH),
-            "ЈјЉљЊњ" to setOf(MACEDONIAN, SERBIAN),
-            "ĀāĒēĪī" to setOf(LATVIAN, YORUBA),
-            "ẸẹỌọ" to setOf(VIETNAMESE, YORUBA),
+            "Îî" to setOf(FRENCH),
+            "Ññ" to setOf(SPANISH),
 
-            "Ūū" to setOf(LATVIAN, LITHUANIAN, YORUBA),
-            "Şş" to setOf(AZERBAIJANI, ROMANIAN, TURKISH),
-            "Ďď" to setOf(CZECH, ROMANIAN, SLOVAK),
-            "ÐðÞþ" to setOf(ICELANDIC, LATVIAN, TURKISH),
-            "Ûû" to setOf(FRENCH, HUNGARIAN, LATVIAN),
-            "Ćć" to setOf(BOSNIAN, CROATIAN, POLISH),
-            "Đđ" to setOf(BOSNIAN, CROATIAN, VIETNAMESE),
-            "Іі" to setOf(BELARUSIAN, KAZAKH, UKRAINIAN),
-            "Ìì" to setOf(ITALIAN, VIETNAMESE, YORUBA),
+            "Ûû" to setOf(FRENCH),
 
-            "Ëë" to setOf(AFRIKAANS, ALBANIAN, DUTCH, FRENCH),
-            "ÈèÙù" to setOf(FRENCH, ITALIAN, VIETNAMESE, YORUBA),
-            "Êê" to setOf(AFRIKAANS, FRENCH, PORTUGUESE, VIETNAMESE),
-            "Õõ" to setOf(ESTONIAN, HUNGARIAN, PORTUGUESE, VIETNAMESE),
-            "Ôô" to setOf(FRENCH, PORTUGUESE, SLOVAK, VIETNAMESE),
-            "Øø" to setOf(BOKMAL, DANISH, NYNORSK),
-            "ЁёЫыЭэ" to setOf(BELARUSIAN, KAZAKH, MONGOLIAN, RUSSIAN),
-            "ЩщЪъ" to setOf(BULGARIAN, KAZAKH, MONGOLIAN, RUSSIAN),
+            "Ëë" to setOf(FRENCH),
+            "ÈèÙù" to setOf(FRENCH),
+            "Êê" to setOf(FRENCH),
+            "Ôô" to setOf(FRENCH),
 
-            "Òò" to setOf(CATALAN, ITALIAN, LATVIAN, VIETNAMESE, YORUBA),
-            "Ýý" to setOf(CZECH, ICELANDIC, SLOVAK, TURKISH, VIETNAMESE),
-            "Ää" to setOf(ESTONIAN, FINNISH, GERMAN, SLOVAK, SWEDISH),
-            "Ââ" to setOf(LATVIAN, PORTUGUESE, ROMANIAN, TURKISH, VIETNAMESE),
-            "Àà" to setOf(CATALAN, FRENCH, ITALIAN, PORTUGUESE, VIETNAMESE),
-            "Ææ" to setOf(BOKMAL, DANISH, ICELANDIC, NYNORSK),
-            "Åå" to setOf(BOKMAL, DANISH, NYNORSK, SWEDISH),
+            "Àà" to setOf(FRENCH),
 
-            "Üü" to setOf(AZERBAIJANI, CATALAN, ESTONIAN, GERMAN, HUNGARIAN, SPANISH, TURKISH),
+            "Üü" to setOf(SPANISH),
 
-            "ČčŠšŽž" to setOf(BOSNIAN, CZECH, CROATIAN, LATVIAN, LITHUANIAN, SLOVAK, SLOVENE),
+            "Çç" to setOf(FRENCH),
 
-            "Çç" to setOf(ALBANIAN, AZERBAIJANI, BASQUE, CATALAN, FRENCH, LATVIAN, PORTUGUESE, TURKISH),
-            "Öö" to setOf(AZERBAIJANI, ESTONIAN, FINNISH, GERMAN, HUNGARIAN, ICELANDIC, SWEDISH, TURKISH),
+            "Óó" to setOf(SPANISH),
+            "ÁáÍíÚú" to setOf(SPANISH),
 
-            "Óó" to setOf(
-                CATALAN, HUNGARIAN, ICELANDIC, IRISH, POLISH, PORTUGUESE, SLOVAK, SPANISH, VIETNAMESE, YORUBA
-            ),
-            "ÁáÍíÚú" to setOf(
-                CATALAN, CZECH, ICELANDIC, IRISH, HUNGARIAN, PORTUGUESE, SLOVAK, SPANISH, VIETNAMESE, YORUBA
-            ),
-
-            "Éé" to setOf(
-                CATALAN, CZECH, FRENCH, HUNGARIAN, ICELANDIC, IRISH, ITALIAN, PORTUGUESE, SLOVAK, SPANISH,
-                VIETNAMESE, YORUBA
-            )
+            "Éé" to setOf(FRENCH, SPANISH)
         )
     }
 }
